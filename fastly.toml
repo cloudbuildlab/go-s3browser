@@ -1,0 +1,22 @@
+# This file describes a Fastly Compute package. To learn more visit:
+# https://www.fastly.com/documentation/reference/compute/fastly-toml
+
+authors = ["jdcajera@gmail.com"]
+cloned_from = "https://github.com/fastly/compute-starter-kit-go-default"
+description = "Simple S3 bucket browser in Go with folder navigation"
+language = "go"
+manifest_version = 3
+name = "go-s3browser"
+service_id = "fydbgTnL77IvKkZY2yUps4"
+
+[local_server]
+
+  [local_server.backends]
+
+    [local_server.backends.TheOrigin]
+      url = "https://geonet-open-data.s3-ap-southeast-2.amazonaws.com"
+
+[scripts]
+  build = "go build -buildvcs=false -o bin/main.wasm ."
+  env_vars = ["GOARCH=wasm", "GOOS=wasip1"]
+  post_init = "go get github.com/fastly/compute-sdk-go@latest"
