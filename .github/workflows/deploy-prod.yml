@@ -38,8 +38,5 @@ jobs:
         run: |
           echo "Building and deploying to production environment..."
           fastly compute build
-          # Deploy and activate to production
-          fastly compute deploy --service-id ${{ secrets.FASTLY_SERVICE_ID }} --version latest
-          VERSION=$(fastly service-version list --service-id ${{ secrets.FASTLY_SERVICE_ID }} --json | jq -r '.[0].number')
-          fastly service-version activate --service-id ${{ secrets.FASTLY_SERVICE_ID }} --version $VERSION
-          echo "Successfully deployed and activated version $VERSION to production!"
+          fastly compute deploy --service-id ${{ secrets.FASTLY_SERVICE_ID }}
+          echo "Successfully deployed and activated to production!"
