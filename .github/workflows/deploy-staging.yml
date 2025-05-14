@@ -38,8 +38,6 @@ jobs:
         run: |
           echo "Building and deploying to staging environment..."
           fastly compute build
-          # Deploy and activate to staging
-          fastly compute deploy --service-id ${{ secrets.FASTLY_SERVICE_ID }} --version latest
-          VERSION=$(fastly service-version list --service-id ${{ secrets.FASTLY_SERVICE_ID }} --json | jq -r '.[0].number')
-          fastly service-version activate --service-id ${{ secrets.FASTLY_SERVICE_ID }} --version $VERSION
-          echo "Successfully deployed and activated version $VERSION to staging!"
+          # Deploy to staging - this will automatically create and activate a new version
+          fastly compute deploy --service-id ${{ secrets.FASTLY_SERVICE_ID }}
+          echo "Successfully deployed to staging!"
