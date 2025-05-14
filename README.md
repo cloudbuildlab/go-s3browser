@@ -8,6 +8,7 @@ A Fastly Compute@Edge application written in Go that lets you browse and downloa
 - Clean breadcrumb navigation
 - File downloads and previews are proxied through your Fastly service
 - No AWS credentials required (public bucket)
+- Staging and production environments with GitHub Actions deployment
 
 ## Local Development
 
@@ -24,6 +25,8 @@ A Fastly Compute@Edge application written in Go that lets you browse and downloa
    - Visit [http://127.0.0.1:7676](http://127.0.0.1:7676) in your browser.
 
 ## Deploying to Fastly
+
+### Initial Setup
 
 1. **Authenticate with Fastly CLI:**
 
@@ -47,13 +50,26 @@ A Fastly Compute@Edge application written in Go that lets you browse and downloa
 
    - Follow the prompts to set the service name (e.g., `go-s3browser` or any name you like).
 
-4. **Deploy:**
+4. **Deploy to Staging:**
 
    ```sh
-   fastly compute deploy
+   fastly compute deploy --service-id <your-service-id>
    ```
 
-5. **Add the S3 backend:**
+   - This will automatically create and activate a new version in staging
+   - Access your app at the staging domain provided by Fastly
+
+5. **Deploy to Production:**
+
+   ```sh
+   fastly compute deploy --service-id <your-service-id>
+   fastly service-version activate --service-id <your-service-id> --version <version-number>
+   ```
+
+   - This will deploy to your production domain
+   - You must manually activate the new version for production
+
+6. **Add the S3 backend:**
    When prompted by the CLI, use the following values:
 
    - **Backend (hostname or IP address):**
@@ -83,55 +99,15 @@ A Fastly Compute@Edge application written in Go that lets you browse and downloa
 
    - **When prompted for another backend, just press Enter to continue.**
 
-6. **Test your service:**
+7. **Test your service:**
    - Use the Fastly-provided domain (shown after deploy) to verify the app works.
 
-## Adding a Health Check (Optional)
+### Setting Up Staging
 
-To monitor your S3 backend's health, you can add a health check using the Fastly CLI:
+Fastly provides a built-in staging environment for Compute services. You do NOT need to manually add a staging domain.
 
-```sh
-fastly healthcheck create \
-  --service-id <your-service-id> \
-  --version=latest \
-  --name s3-health \
-  --host geonet-open-data.s3-ap-southeast-2.amazonaws.com \
-  --path /explorer.html \
-  --method GET \
-  --expected-response 200 \
-  --check-interval 3600000 \
-  --timeout 2000 \
-  --autoclone
-```
+1. **Enable Staging:**
+   - In the Fastly UI, go to your Compute service and click "Opt in to Staging" (banner at the top of the service page)
+   - After enabling, Fastly will provide a special staging domain (e.g., `your-service.staging.edgecompute.app`)
 
-- Replace `<your-service-id>` with your actual service ID (see the Fastly UI).
-- This will create a health check on the latest version of your service, auto-cloning if needed.
-- **Note:** After creating a health check (or any config change), you must manually activate the new version in the Fastly UI or with:
-
-```sh
-fastly service-version activate --service-id <your-service-id> --version <version-number>
-```
-
-Otherwise, your changes will remain as a draft and will not be live.
-
-- Adjust the path and timing as needed for your use case.
-
-## Production Notes
-
-- For production, set up a custom domain and TLS in the Fastly UI.
-- Optionally configure logging, CORS, and other Fastly features as needed.
-- No AWS credentials are required for this public bucket.
-
-## Project Structure
-
-- `main.go` — Main entrypoint, HTTP handler, and template rendering
-- `s3browser.go` — S3 listing and utility functions
-- `fastly.toml` — Fastly Compute@Edge configuration
-
-## License
-
-MIT (or your preferred license)
-
-## Contact
-
-For questions or contributions, open an issue or contact the maintainer.
+2. **Configure GitHub Secrets:**
