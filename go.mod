@@ -1,4 +1,4 @@
-module compute-starter-kit-go
+module go_s3browser
 
 go 1.23
 

@@ -444,6 +444,36 @@ func handleBrowserUI(w fsthttp.ResponseWriter, prefix string, page int, sortBy s
 	return nil
 }
 
+// parseQueryParams extracts and validates query parameters from the request
+func parseQueryParams(q url.Values) (prefix string, page, limit int, sortBy, sortOrder string) {
+	prefix = q.Get("prefix")
+	if prefix == "/" {
+		prefix = ""
+	}
+
+	page, _ = strconv.Atoi(q.Get("page"))
+	if page < 1 {
+		page = 1
+	}
+
+	sortBy = q.Get("sortby")
+	if sortBy != "date" && sortBy != "size" {
+		sortBy = "name"
+	}
+
+	sortOrder = q.Get("sort")
+	if sortOrder != sortOrderAsc && sortOrder != sortOrderDesc {
+		sortOrder = sortOrderAsc
+	}
+
+	limit, _ = strconv.Atoi(q.Get("limit"))
+	if limit < 1 {
+		limit = 25
+	}
+
+	return prefix, page, limit, sortBy, sortOrder
+}
+
 func main() {
 	// Log service version
 	fmt.Println("FASTLY_SERVICE_VERSION:", os.Getenv("FASTLY_SERVICE_VERSION"))
@@ -458,6 +488,16 @@ func main() {
 	}).Parse(htmlTemplate))
 
 	fsthttp.ServeFunc(func(ctx context.Context, w fsthttp.ResponseWriter, r *fsthttp.Request) {
+		// Handle health check endpoint
+		if r.URL.Path == "/health" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(fsthttp.StatusOK)
+			if _, err := fmt.Fprintf(w, `{"status":"ok","version":"%s"}`, os.Getenv("FASTLY_SERVICE_VERSION")); err != nil {
+				fmt.Printf("Error writing health check response: %v\n", err)
+			}
+			return
+		}
+
 		if r.Method != "GET" {
 			w.WriteHeader(fsthttp.StatusMethodNotAllowed)
 			if _, err := fmt.Fprintf(w, "Method not allowed\n"); err != nil {
@@ -468,8 +508,7 @@ func main() {
 
 		// Parse query params
 		u, _ := url.Parse(r.URL.String())
-		q := u.Query()
-		prefix := q.Get("prefix")
+		prefix, page, limit, sortBy, sortOrder := parseQueryParams(u.Query())
 
 		// If this is a file request (no prefix param, path does not end with / and is not "/"), proxy the file
 		if prefix == "" && r.URL.Path != "/" && !strings.HasSuffix(r.URL.Path, "/") {
@@ -481,26 +520,6 @@ func main() {
 		}
 
 		// Otherwise, render the browser UI for the given prefix or folder
-		if prefix == "/" {
-			prefix = ""
-		}
-		page, _ := strconv.Atoi(q.Get("page"))
-		if page < 1 {
-			page = 1
-		}
-		sortBy := q.Get("sortby")
-		if sortBy != "date" && sortBy != "size" {
-			sortBy = "name"
-		}
-		sortOrder := q.Get("sort")
-		if sortOrder != sortOrderAsc && sortOrder != sortOrderDesc {
-			sortOrder = sortOrderAsc
-		}
-		limit, _ := strconv.Atoi(q.Get("limit"))
-		if limit < 1 {
-			limit = 25
-		}
-
 		if err := handleBrowserUI(w, prefix, page, sortBy, sortOrder, limit, tmpl); err != nil {
 			return
 		}
