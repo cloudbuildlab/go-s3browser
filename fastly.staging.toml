@@ -1,11 +1,11 @@
-# This file describes a Fastly Compute package for production environment
+# This file describes a Fastly Compute package for staging environment
 
 authors = ["jdcajera@gmail.com"]
-description = "Simple S3 bucket browser in Go with folder navigation"
+description = "Simple S3 bucket browser in Go with folder navigation (Staging)"
 language = "go"
 manifest_version = 3
-name = "go-s3browser"
-service_id = "fydbgTnL77IvKkZY2yUps4"
+name = "go-s3browser-staging"
+service_id = "fydbgTnL77IvKkZY2yUps4"  # Same as production, as this is a staging version of the same service
 
 [local_server]
   [local_server.backends]
