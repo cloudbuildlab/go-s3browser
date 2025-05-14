@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "LICENSE"
+      - ".gitignore"
+      - ".vscode/**"
+      - ".devcontainer/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+  checks: write
+  statuses: write
+
+jobs:
+  golangci-lint:
+    uses: cloudbuildlab/actions-golangci-lint/.github/workflows/golangci-lint.yml@v0
+
+  govulncheck:
+    uses: cloudbuildlab/actions-govulncheck/.github/workflows/govulncheck.yml@v0
+
+  test:
+    uses: cloudbuildlab/actions-go-test/.github/workflows/go-test.yml@v0
+    with:
+      test-pattern: "."
+
+  build:
+    name: Build and Validate
+    needs: [golangci-lint, govulncheck, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Install latest Fastly CLI
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/fastly/cli/releases/latest | jq -r .tag_name)
+          wget https://github.com/fastly/cli/releases/download/${VERSION}/fastly_${VERSION}_linux-amd64.tar.gz
+          tar -xzf fastly_${VERSION}_linux-amd64.tar.gz
+          sudo mv fastly /usr/local/bin/
+
+      - name: Build Fastly Compute@Edge package
+        run: fastly compute build
+
+      - name: Validate Fastly Compute@Edge package
+        run: fastly compute validate
+
+      - name: Test Run Compute@Edge
+        run: |
+          fastly compute serve --non-interactive --addr=127.0.0.1:7676 &
+          SERVER_PID=$!
+
+          echo "Waiting for port 7676 to be ready..."
+          for i in {1..10}; do
+            if nc -z 127.0.0.1 7676; then
+              break
+            fi
+            sleep 1
+          done
+
+          echo "Requesting local compute..."
+          curl --fail --silent --output /dev/null http://127.0.0.1:7676/
+          kill $SERVER_PID

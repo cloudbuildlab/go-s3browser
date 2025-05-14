@@ -1,0 +1,31 @@
+{
+  "name": "Go DevContainer",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {
+      // "version": "1.22"
+    }
+  },
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": ".devcontainer/scripts/postCreate.sh",
+
+  "containerEnv": {
+    "GOPATH": "/workspace/go",
+    "GO111MODULE": "on"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "davidanson.vscode-markdownlint",
+        "esbenp.prettier-vscode",
+        "golang.go",
+        "Gruntfuggly.todo-tree",
+        "hashicorp.terraform",
+        "ms-azuretools.vscode-docker",
+        "streetsidesoftware.code-spell-checker",
+        "vscode-icons-team.vscode-icons"
+      ]
+    }
+  },
+  "remoteUser": "root"
+}

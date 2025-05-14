@@ -1,0 +1,45 @@
+name: Deploy to Production
+
+on:
+  workflow_run:
+    workflows: ["Deploy to Staging"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy-prod:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    env:
+      FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Install Fastly CLI
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/fastly/cli/releases/latest | jq -r .tag_name)
+          wget https://github.com/fastly/cli/releases/download/${VERSION}/fastly_${VERSION}_linux-amd64.tar.gz
+          tar -xzf fastly_${VERSION}_linux-amd64.tar.gz
+          sudo mv fastly /usr/local/bin/
+
+      - name: Build and Deploy to Production
+        run: |
+          echo "Building and deploying to production environment..."
+          fastly compute build
+          # Deploy and activate to production
+          fastly compute deploy --service-id ${{ secrets.FASTLY_SERVICE_ID }} --version latest
+          VERSION=$(fastly service-version list --service-id ${{ secrets.FASTLY_SERVICE_ID }} --json | jq -r '.[0].number')
+          fastly service-version activate --service-id ${{ secrets.FASTLY_SERVICE_ID }} --version $VERSION
+          echo "Successfully deployed and activated version $VERSION to production!"
