@@ -52,6 +52,9 @@ func listObjects(prefix string) ([]S3Object, error) {
 		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
 
+	// Add required headers for S3
+	req.Header.Set("Accept", "application/xml")
+
 	// Send the request
 	resp, err := req.Send(context.Background(), "TheOrigin")
 	if err != nil {
