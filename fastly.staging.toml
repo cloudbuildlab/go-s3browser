@@ -1,14 +1,28 @@
+<<<<<<< HEAD
 # This file describes a Fastly Compute package for staging environment
+=======
+# This file describes a Fastly Compute package. To learn more visit:
+# https://www.fastly.com/documentation/reference/compute/fastly-toml
+>>>>>>> 29fbc8a (fix: update staging deployment)
 
 authors = ["jdcajera@gmail.com"]
 description = "Simple S3 bucket browser in Go with folder navigation (Staging)"
 language = "go"
 manifest_version = 3
 name = "go-s3browser-staging"
+<<<<<<< HEAD
 service_id = "fydbgTnL77IvKkZY2yUps4"  # Same as production, as this is a staging version of the same service
 
 [local_server]
   [local_server.backends]
+=======
+service_id = "CDK0EPs7gtbLrPnWa5QL92"
+
+[local_server]
+
+  [local_server.backends]
+
+>>>>>>> 29fbc8a (fix: update staging deployment)
     [local_server.backends.TheOrigin]
       url = "https://geonet-open-data.s3-ap-southeast-2.amazonaws.com"
 
