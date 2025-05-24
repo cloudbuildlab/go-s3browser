@@ -1,0 +1,22 @@
+# GitHub Environment Configuration
+# This file defines the environments and their settings
+
+environments:
+  staging:
+    wait_timer: 30
+    reviewers:
+      - type: Team
+        slug: devops
+    prevent_self_review: false
+    deployment_branch_policy:
+      protected_branches: true
+      custom_branch_policies: false
+  production:
+    wait_timer: 30
+    reviewers:
+      - type: Team
+        slug: platform
+    prevent_self_review: false
+    deployment_branch_policy:
+      protected_branches: true
+      custom_branch_policies: false

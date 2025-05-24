@@ -1,0 +1,35 @@
+name: GitHub Environment Sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/environments.yaml
+
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at 00:00 UTC
+
+jobs:
+  sync-environment:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: GitHub Environment Sync
+        uses: actionsforge/actions-gh-configure-environment@v1
+        with:
+          token: ${{ secrets.GH_ENV_CONFIG_TOKEN }}
+          config-path: .github/environments.yaml
+          dry-run: false
