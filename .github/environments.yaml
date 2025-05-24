@@ -3,7 +3,7 @@
 
 environments:
   staging:
-    wait_timer: 30
+    wait_timer: 0
     reviewers:
       - type: Team
         slug: devops
@@ -12,7 +12,7 @@ environments:
       protected_branches: true
       custom_branch_policies: false
   production:
-    wait_timer: 30
+    wait_timer: 5
     reviewers:
       - type: Team
         slug: platform
