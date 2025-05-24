@@ -6,7 +6,7 @@ environments:
     wait_timer: 30
     reviewers:
       - type: Team
-        slug: staging
+        slug: devops
     prevent_self_review: false
     deployment_branch_policy:
       protected_branches: true
@@ -15,7 +15,7 @@ environments:
     wait_timer: 30
     reviewers:
       - type: Team
-        slug: production
+        slug: platform
     prevent_self_review: false
     deployment_branch_policy:
       protected_branches: true
