@@ -30,4 +30,4 @@ jobs:
         with:
           token: ${{ secrets.GH_ENV_CONFIG_TOKEN }}
           config-path: .github/environments.yaml
-          dry-run: true
+          dry-run: false
