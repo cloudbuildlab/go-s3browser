@@ -38,6 +38,6 @@ jobs:
       - name: Build and Deploy to Staging
         run: |
           echo "Building and deploying to staging environment..."
-          fastly compute build
+          fastly compute build --env=staging
           fastly compute deploy --service-id ${{ secrets.FASTLY_SERVICE_STAGING_ID }} --env staging
           echo "Successfully deployed and activated to staging!"
