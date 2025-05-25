@@ -232,3 +232,102 @@ fastly service-version activate --service-id "$SERVICE_ID" --version "$NEW_VERSI
 > * Accessing the staging domain requires manual DNS configuration on each developer's machine (e.g. modifying `/etc/hosts`) to map the staging hostname to a specific staging Fastly POP. See [Fastly's staging documentation](https://docs.fastly.com/en/guides/working-with-staging#accessing-the-staging-environment) for details.
 
 *Both environments use the same source code and deployment logic.*
+
+## Detailed Deployment Workflow
+
+This section outlines the continuous deployment process triggered by Pull Requests, including the CI pipeline, staging and production deployments, and required approval steps.
+
+```mermaid
+flowchart TD
+    A[Developer creates PR] --> B[CI Workflow]
+    B --> C1[Run Tests & Lint]
+    C1 --> C2[Build Package]
+    C2 --> C3[Validate Package]
+
+    C3 --> D1[Deploy to Staging
+GitHub Environment: staging]
+    D1 --> E1[Staging Approval Required]
+    E1 --> F1[Fastly Staging Deploy]
+    F1 --> G1[Staging Tests]
+
+    G1 --> D2[Deploy to Production
+GitHub Environment: production]
+    D2 --> E2[Production Approval Required]
+    E2 --> F2[Fastly Production Deploy]
+    F2 --> G2[Production Tests]
+
+    %% Styling
+    classDef ci fill:#e3f2fd,stroke:#1976d2,stroke-width:2px;
+    classDef env fill:#e0f7fa,stroke:#00796b,stroke-width:2px;
+    classDef approval fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+    classDef deploy fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef test fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+
+    class B,C1,C2,C3 ci;
+    class D1,D2 env;
+    class E1,E2 approval;
+    class F1,F2 deploy;
+    class G1,G2 test;
+```
+
+### Workflow Details
+
+1. **Pull Request Creation**
+    * Developer creates a PR with changes
+    * PR triggers CI workflow automatically
+
+2. **CI Pipeline**
+    * Run tests and linting
+    * Build Fastly Compute package
+    * Validate package
+    * All checks must pass to proceed
+
+3. **Staging Deployment**
+    * Deploy to staging environment
+    * Requires approval from authorized team member
+    * Deploy to Fastly staging service
+    * Run staging environment tests
+
+4. **Production Deployment**
+    * Deploy to production environment
+    * Requires approval from authorized team member
+    * Deploy to Fastly production service
+    * Run production environment tests
+
+### Environment Configuration
+
+* **Staging**
+  * Service ID: `CDK0EPs7gtbLrPnWa5QL92`
+  * Environment: `staging`
+  * Used for testing and validation
+
+* **Production**
+  * Service ID: `phyFDbHNtX6Ka4FMEnODt6`
+  * Environment: `production`
+  * Live environment for end users
+
+### Approval Process
+
+1. **Staging Approval**
+    * Required before deploying to staging
+    * Can be approved by team members with write access
+    * Ensures changes are ready for testing
+
+2. **Production Approval**
+    * Required before deploying to production
+    * Can be approved by team leads or senior members
+    * Final verification before live deployment
+
+### Testing Strategy
+
+*Note: Staging and Production tests are currently performed manually.*
+
+1. **Staging Tests**
+    * Verify functionality in staging environment
+    * Test with real S3 bucket data
+    * Validate performance and behavior
+
+2. **Production Tests**
+    * Final verification in production environment
+    * Smoke tests to ensure deployment success
+    * Monitor for any immediate issues
