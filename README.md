@@ -176,8 +176,7 @@ fastly service-version activate --service-id "$SERVICE_ID" --version "$NEW_VERSI
    * **Type**: Automation token
    * **Role**: Engineer
    * **Scope**:
-     * ✅ `global:read` — required to read service configuration
-     * 🟡 `purge_select` — optional, for cache purging support
+     * ✅ `Global API access (global)` — required for deployment
    * **Access**: Only the `go-s3browser` service
 
    Set the following GitHub secrets:
@@ -190,8 +189,7 @@ fastly service-version activate --service-id "$SERVICE_ID" --version "$NEW_VERSI
    * **Type**: Automation token
    * **Role**: Engineer
    * **Scope**:
-     * ✅ `global:read` — required to read service configuration
-     * 🟡 `purge_select` — optional, for cache purging support
+     * ✅ `Global API access (global)` — required for deployment
    * **Access**: Only the `go-s3browser-staging` service
 
    Set the following GitHub secrets:
@@ -231,6 +229,6 @@ fastly service-version activate --service-id "$SERVICE_ID" --version "$NEW_VERSI
 >
 > * It shares the same service ID and version history as production, making isolated testing difficult.
 > * It does not support separate tokens or backend configurations per environment.
-> * Accessing the staging domain requires manual DNS configuration on each developer’s machine (e.g. modifying `/etc/hosts`) to map the staging hostname to a specific staging Fastly POP. See [Fastly's staging documentation](https://docs.fastly.com/en/guides/working-with-staging#accessing-the-staging-environment) for details.
+> * Accessing the staging domain requires manual DNS configuration on each developer's machine (e.g. modifying `/etc/hosts`) to map the staging hostname to a specific staging Fastly POP. See [Fastly's staging documentation](https://docs.fastly.com/en/guides/working-with-staging#accessing-the-staging-environment) for details.
 
 *Both environments use the same source code and deployment logic.*
